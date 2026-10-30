@@ -368,8 +368,19 @@ The firmware implements ADC acquisition, NTC temperature conversion, fault detec
 
 Full multi-board integration, additional sensor integration, and system-level validation remain development objectives.
 
----
+## 10. Testing and Demonstration
 
+A testing video demonstrating the temperature-monitoring system and its hardware operation is included below.
+
+### Hardware Testing
+
+The demonstration video showcases the hardware testing process and temperature-monitoring functionality.
+
+**Testing Video:**
+
+[TEMP_PoC.mp4](https://drive.google.com/file/d/1_f34zJ-By_HTeCJ9r7HJWei0OFtLDCeV/view?usp=drive_link)
+
+The video provides a visual demonstration of the prototype during testing.
 ## Technologies Used
 
 - **Microcontroller:** STM32F407VET6
