@@ -1,0 +1,394 @@
+(kicad_sch
+	(version 20260306)
+	(generator "eeschema")
+	(generator_version "10.0")
+	(uuid "4bc06a1f-2fa2-4acf-9b67-e8b9f176dac4")
+	(paper "A4")
+	(title_block
+		(title "BMS_2027")
+		(date "2026-02-05")
+		(rev "V_1")
+		(company "Chimera Racing Elelctric")
+		(comment 1 "ph.no:7204388647")
+		(comment 2 "Hari Prasad L")
+	)
+	(lib_symbols)
+	(text "5V\n"
+		(exclude_from_sim no)
+		(at 31.75 108.204 0)
+		(effects
+			(font
+				(size 2.54 2.54)
+				(thickness 0.508)
+				(bold yes)
+			)
+		)
+		(uuid "56ff81a4-960e-48d2-bbcd-657c98563eed")
+	)
+	(text "TCAN1044 OR TJA1051/3"
+		(exclude_from_sim no)
+		(at 223.52 113.792 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "603d30e9-2982-4992-a1ab-359290a8c6a8")
+	)
+	(text "NTC and FUSE BLOCK"
+		(exclude_from_sim no)
+		(at 133.858 60.452 0)
+		(effects
+			(font
+				(size 7.62 7.62)
+				(thickness 1.524)
+				(bold yes)
+			)
+		)
+		(uuid "ad8df8bd-2b2b-4571-b1f1-7205646e6688")
+	)
+	(text "STM32F446VET6\n"
+		(exclude_from_sim no)
+		(at 141.478 105.918 0)
+		(effects
+			(font
+				(size 5.08 5.08)
+				(thickness 1.016)
+				(bold yes)
+				(color 0 0 0 1)
+			)
+		)
+		(uuid "b000deda-e279-4717-a465-26f966bc3ae2")
+	)
+	(text "CAN Interface\n"
+		(exclude_from_sim no)
+		(at 224.79 108.966 0)
+		(effects
+			(font
+				(size 2.54 2.54)
+				(thickness 0.762)
+				(bold yes)
+			)
+		)
+		(uuid "bb5e0b3a-1fbc-443a-b89e-5f84367bf500")
+	)
+	(text "POWER\n"
+		(exclude_from_sim no)
+		(at 68.58 109.22 90)
+		(effects
+			(font
+				(size 5.08 5.08)
+				(thickness 2.032)
+				(bold yes)
+			)
+		)
+		(uuid "e45b531e-fe2a-4702-94ca-2556e1e59a2d")
+	)
+	(text "TLV757"
+		(exclude_from_sim no)
+		(at 68.072 125.984 0)
+		(effects
+			(font
+				(size 1.905 1.905)
+			)
+		)
+		(uuid "fc8bfa53-ea25-4c51-9484-41d57df9d1ba")
+	)
+	(polyline
+		(pts
+			(xy 140.97 71.12) (xy 140.97 86.36)
+		)
+		(stroke
+			(width 0.508)
+			(type dash_dot_dot)
+			(color 132 0 132 1)
+		)
+		(uuid "09316f54-fe46-4f54-b239-bd35cefc930e")
+	)
+	(polyline
+		(pts
+			(xy 176.53 107.95) (xy 208.28 107.95)
+		)
+		(stroke
+			(width 0.508)
+			(type solid)
+		)
+		(uuid "141c0911-4c89-4ccb-98e4-4b1c37b49ceb")
+	)
+	(polyline
+		(pts
+			(xy 35.56 107.95) (xy 59.69 107.95)
+		)
+		(stroke
+			(width 0.508)
+			(type dash_dot)
+			(color 255 8 17 1)
+		)
+		(uuid "1c137b01-5e09-46ea-addc-c918650ae644")
+	)
+	(polyline
+		(pts
+			(xy 76.2 119.38) (xy 107.95 119.38)
+		)
+		(stroke
+			(width 0.381)
+			(type dash_dot)
+			(color 194 0 194 1)
+		)
+		(uuid "26f4ce0d-1354-45b2-9b63-9af11404ff0c")
+	)
+	(polyline
+		(pts
+			(xy 67.31 135.89) (xy 67.31 147.32)
+		)
+		(stroke
+			(width 0.381)
+			(type dash_dot)
+			(color 255 0 0 1)
+		)
+		(uuid "686425c1-79da-4e18-ba89-e3026b9d657a")
+	)
+	(polyline
+		(pts
+			(xy 76.2 106.68) (xy 107.95 106.68)
+		)
+		(stroke
+			(width 0.381)
+			(type dash_dot)
+			(color 255 0 0 1)
+		)
+		(uuid "724dc4a2-5bf4-4a2c-8a2b-716d0e33817d")
+	)
+	(polyline
+		(pts
+			(xy 67.31 71.12) (xy 67.31 83.82)
+		)
+		(stroke
+			(width 0.381)
+			(type dash_dot)
+			(color 255 0 0 1)
+		)
+		(uuid "c2d72654-75e4-4562-a567-f5e371914088")
+	)
+	(polyline
+		(pts
+			(xy 222.25 121.92) (xy 222.25 147.32)
+		)
+		(stroke
+			(width 0.381)
+			(type dash_dot)
+			(color 255 0 0 1)
+		)
+		(uuid "d55cc3b1-3d8f-4719-8266-c1cfe7363837")
+	)
+	(polyline
+		(pts
+			(xy 67.31 147.32) (xy 222.25 147.32)
+		)
+		(stroke
+			(width 0.381)
+			(type dash_dot)
+			(color 255 0 0 1)
+		)
+		(uuid "f083786e-38e5-4f84-a9f6-e5b811b22129")
+	)
+	(polyline
+		(pts
+			(xy 176.53 110.49) (xy 208.28 110.49)
+		)
+		(stroke
+			(width 0.508)
+			(type solid)
+		)
+		(uuid "f091d94b-5dbf-452b-b550-d5003db198b4")
+	)
+	(sheet
+		(at 59.69 49.53)
+		(size 147.32 21.59)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 176 255 184 1)
+		)
+		(uuid "3a1242d9-63f7-44b6-bfbc-cada505cb416")
+		(property "Sheetname" "NTC"
+			(at 59.69 48.8184 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "temp_sensors.kicad_sch"
+			(at 178.562 71.882 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "support_final"
+				(path "/4bc06a1f-2fa2-4acf-9b67-e8b9f176dac4"
+					(page "5")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 107.95 86.36)
+		(size 67.31 44.45)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 173 199 255 1)
+		)
+		(uuid "52096a5e-df8c-4d9a-ae4a-94987fd5736c")
+		(property "Sheetname" "MCU"
+			(at 107.95 85.6484 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "stm32f407.kicad_sch"
+			(at 107.95 131.3946 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "support_final"
+				(path "/4bc06a1f-2fa2-4acf-9b67-e8b9f176dac4"
+					(page "3")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 209.55 96.52)
+		(size 30.48 25.4)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 255 234 155 1)
+		)
+		(uuid "6642281a-5f6a-474a-99eb-b1019d43aa75")
+		(property "Sheetname" "CAN_trans"
+			(at 209.55 95.8084 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "CAN.kicad_sch"
+			(at 209.55 122.5046 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "support_final"
+				(path "/4bc06a1f-2fa2-4acf-9b67-e8b9f176dac4"
+					(page "4")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 59.69 83.82)
+		(size 16.51 52.07)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 255 135 141 1)
+		)
+		(uuid "f591712b-4c88-42a6-ac65-c56d75c224ce")
+		(property "Sheetname" "power"
+			(at 59.69 83.1084 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "power.kicad_sch"
+			(at 59.69 136.4746 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "support_final"
+				(path "/4bc06a1f-2fa2-4acf-9b67-e8b9f176dac4"
+					(page "2")
+				)
+			)
+		)
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+	(embedded_fonts no)
+)
