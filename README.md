@@ -1,192 +1,383 @@
-# BMS Temperature Monitoring Module
+# Distributed Battery Temperature Monitoring System
 
-## Overview
+A modular, CAN-based temperature monitoring system developed for a **7.2 kWh, 40S12P battery pack**. The system uses distributed STM32-based temperature acquisition boards to monitor multiple locations across the battery pack and communicate temperature data to a central Battery Management System (BMS).
 
-An STM32-based distributed battery temperature monitoring module designed to monitor 13 NTC thermistors per board and communicate temperature telemetry and fault information over CAN bus.
+The architecture supports **75 NTC temperature-sensing channels**, combining five distributed monitoring boards with 13 channels each and 10 additional temperature-sensing points.
 
-The firmware uses ADC with DMA for continuous multi-channel temperature acquisition, Beta-equation-based NTC temperature conversion, fault detection with configurable thresholds, and CAN-based communication with a central BMS controller.
+---
 
-The architecture supports multiple monitoring boards, each identified by a unique CAN board ID.
+## 1. Project Overview
 
-## Hardware
+Battery temperature monitoring is essential for identifying thermal abnormalities and improving battery pack safety. This project implements a distributed temperature acquisition architecture to monitor temperatures across a high-capacity battery pack.
 
-- **Microcontroller:** STM32F407VET6
-- **Temperature Sensors:** 10kΩ NTC thermistors (MF55)
-- **Reference Resistors:** 10kΩ
-- **ADC:** 12-bit, 13-channel scan conversion
-- **ADC Acquisition:** DMA with continuous conversion
-- **Communication:** CAN 2.0
-- **CAN Transceiver:** TJA1051
-- **CAN Bitrate:** 500 kbps
+Instead of routing every thermistor signal to a single controller, temperature measurements are acquired locally by distributed microcontroller-based boards. Each board processes its NTC inputs, calculates temperature, performs fault checks, and transmits the acquired data over a CAN network.
 
-## Features
+### System Specifications
 
-- 13-channel NTC temperature acquisition per board.
-- Continuous ADC sampling using DMA.
-- Interrupt-driven acquisition through ADC conversion-complete callback.
-- NTC temperature calculation using the Beta equation.
-- Configurable overtemperature thresholds.
-- Sensor fault detection for abnormal ADC readings.
-- Per-channel fault latching and debounce logic.
-- CAN transmission of temperature telemetry.
-- Dedicated CAN fault frames.
-- Support for multiple monitoring boards through configurable board IDs.
+| Parameter | Specification |
+|---|---|
+| Battery pack energy | 7.2 kWh |
+| Battery configuration | 40S12P |
+| Total cell positions | 480 |
+| Temperature-monitoring boards | 5 |
+| NTC channels per board | 13 |
+| Channels across five boards | 65 |
+| Additional NTC sensors | 10 |
+| **Total temperature-sensing channels** | **75** |
+| Communication protocol | CAN |
+| CAN bit rate | 500 kbps |
+| Microcontroller | STM32F407VET6 |
+| Temperature sensor | 10 kΩ NTC |
 
-## System Architecture
+The 75 sensing points provide distributed temperature monitoring across the battery pack. The system does not assume one thermistor per cell.
+
+## 2. System Architecture
+
+The system follows a distributed temperature acquisition architecture.
+
+Each temperature-monitoring board independently:
+1. Acquires 13 NTC thermistor signals.
+2. Converts ADC readings into thermistor resistance.
+3. Calculates temperature using the Beta equation.
+4. Checks for overtemperature and sensor faults.
+5. Transmits temperature telemetry through CAN.
+
+The distributed boards communicate with the central BMS controller over a shared CAN network.
+
+### Architecture Diagram
 
 ```text
-       13 × NTC Thermistors
-                |
-                v
-       Voltage Divider Network
-                |
-                v
-          STM32 ADC1
-                |
-                v
-          DMA Acquisition
-                |
-                v
-       ADC Conversion Callback
-                |
-         +------+------+
-         |             |
-         v             v
-    Fault Detection  ADC Snapshot
-         |             |
-         v             v
-    Fault Latching  Temperature
-         |           Conversion
-         v             |
-    CAN Fault Frame    v
-                  Fixed-Point
-                  Temperature
+              7.2 kWh Battery Pack
+                    40S12P
+                       |
+           Distributed NTC Sensors
+                       |
+       +---------------+---------------+
+       |               |               |
+       v               v               v
+ +-----------+   +-----------+   +-----------+
+ | Board 1   |   | Board 2   |   | Board 3   |
+ | STM32     |   | STM32     |   | STM32     |
+ | 13 NTC    |   | 13 NTC    |   | 13 NTC    |
+ +-----------+   +-----------+   +-----------+
+       |               |               |
+       +---------------+---------------+
+                       |
+                 CAN Bus
+                 500 kbps
+                       |
+       +---------------+---------------+
+       |                               |
+       v                               v
+ +-----------+                   +-----------+
+ | Board 4   |                   | Board 5   |
+ | STM32     |                   | STM32     |
+ | 13 NTC    |                   | 13 NTC    |
+ +-----------+                   +-----------+
+       |                               |
+       +---------------+---------------+
+                       |
+                 CAN Network
                        |
                        v
-                  CAN Telemetry
+             +------------------+
+             | BMS Master       |
+             | APARD32690       |
+             +------------------+
                        |
                        v
-                Central BMS ECU
+              Battery Monitoring
+
+       Additional temperature sensing:
+                  10 NTC points
+
+       Total system capacity: 75 channels
 ```
 
-## Temperature Measurement
+## 3. Hardware Design
 
-Each NTC thermistor is connected through a voltage divider consisting of:
+### 3.1 Microcontroller – STM32F407VET6
 
-- 10kΩ NTC connected to 3.3V.
-- 10kΩ fixed reference resistor connected to GND.
-- ADC connected to the divider midpoint.
+Each temperature-monitoring board uses the STM32F407VET6 microcontroller.
 
-The firmware calculates NTC resistance using:
+Key features:
+- ARM Cortex-M4 processor.
+- 32-bit processing architecture.
+- 12-bit ADC.
+- Multiple communication peripherals.
+- DMA support for ADC acquisition.
+- SWD interface for programming and debugging.
+
+The microcontroller handles thermistor acquisition, temperature conversion, fault detection, and CAN communication.
+
+### 3.2 Temperature Sensing Circuit
+
+The system uses MF55-series 10 kΩ NTC thermistors.
+
+Each thermistor is connected through a voltage-divider circuit using a 10 kΩ reference resistor.
+
+| Parameter | Value |
+|---|---|
+| Thermistor type | NTC |
+| Thermistor resistance at 25°C | 10 kΩ |
+| Reference resistor | 10 kΩ |
+| Reference voltage | 3.3 V |
+| ADC resolution | 12-bit |
+| ADC channels per board | 13 |
+| Number of boards | 5 |
+| Additional sensors | 10 |
+| Total sensing channels | 75 |
+
+The analog voltage generated by each voltage divider is sampled by the STM32 ADC.
+
+### 3.3 Temperature Calculation
+
+The firmware converts ADC readings into resistance values and calculates temperature using the Beta equation.
 
 \[
-R_{NTC}=R_{FIXED}\frac{V_{REF}-V_{OUT}}{V_{OUT}}
-\]
-
-Temperature is calculated using the Beta equation:
-
-\[
-\frac{1}{T}=\frac{1}{T_{25}}+
-\frac{1}{B}\ln\left(\frac{R_{NTC}}{R_{25}}\right)
+T=\left(\frac{1}{T_0}+\frac{1}{B}\ln\left(\frac{R}{R_0}\right)\right)^{-1}
 \]
 
 Where:
 
-- \(R_{25}=10k\Omega\)
-- \(B=3950K\)
-- \(T_{25}=298.15K\)
+- \(T\) = Temperature in Kelvin.
+- \(T_0\) = Reference temperature (298.15 K).
+- \(B\) = Thermistor Beta coefficient (3950).
+- \(R\) = Calculated thermistor resistance.
+- \(R_0\) = Thermistor resistance at reference temperature (10 kΩ).
 
-The resulting temperature is converted into fixed-point format (°C × 100) before CAN transmission.
+The calculated temperature is converted into Celsius for telemetry transmission.
 
-## Fault Detection
+### 3.4 Power Supply
 
-The firmware implements three fault categories:
+The board receives a 5 V supply and uses a TLV75733 low-dropout regulator to generate the 3.3 V supply required by the microcontroller and associated circuitry.
 
-| Fault | Detection condition |
+### 3.5 CAN Communication
+
+The TJA1051 CAN transceiver provides the physical interface between the STM32 and the CAN bus.
+
+| Parameter | Configuration |
 |---|---|
-| Overtemperature | ADC ≥ 3155 |
-| Sensor short | ADC ≤ 50 |
-| Sensor open | ADC ≥ 4045 |
+| CAN transceiver | TJA1051 |
+| Communication protocol | CAN |
+| Bit rate | 500 kbps |
+| MCU logic supply | 3.3 V |
+| Transceiver supply | 5 V |
+| Termination | 120 Ω provision |
 
-Overtemperature detection uses consecutive-sample debounce logic, while sensor faults use a separately configurable debounce count.
+The distributed boards transmit temperature measurements to the central BMS controller through the shared CAN network.
 
-Detected faults are latched independently for each channel and reported through CAN fault frames.
+---
 
-The overtemperature clear threshold is configured separately to provide hysteresis.
+## 4. PCB Design
 
-## CAN Communication
+The project includes two PCB revisions developed during the hardware design process.
 
-The firmware uses standard 11-bit CAN identifiers.
+### 4.1 V1 – Proof of Concept
 
-### Temperature Telemetry
+<img width="1273" height="670" alt="image" src="https://github.com/user-attachments/assets/2c705aa6-726b-458f-ac6e-f9076caa6b01" />
 
-Temperature values are transmitted as signed 16-bit integers in big-endian format, representing temperature in °C × 100.
+The first PCB revision was developed to establish the hardware architecture and evaluate the initial circuit implementation.
 
-Each board transmits four telemetry frames:
+Key design elements:
+- STM32F407VET6-based temperature acquisition circuit.
+- NTC voltage-divider interfaces.
+- 5 V to 3.3 V power regulation.
+- CAN transceiver circuitry.
+- Test points for hardware measurements and debugging.
 
-| Frame | CAN ID | Channels | Payload |
-|---|---|---|---|
-| 0 | 0x100 + (BOARD_ID × 0x10) | 0–3 | 8 bytes |
-| 1 | 0x101 + (BOARD_ID × 0x10) | 4–7 | 8 bytes |
-| 2 | 0x102 + (BOARD_ID × 0x10) | 8–11 | 8 bytes |
-| 3 | 0x103 + (BOARD_ID × 0x10) | 12 | 2 bytes |
+### 4.2 V2 – Revised PCB
+<img width="1273" height="670" alt="image" src="https://github.com/user-attachments/assets/c3463d41-2405-4403-97b3-90d54052ddf0" />
 
-Telemetry transmission is scheduled every 100 ms.
 
-### Fault Frames
+The second revision represents the subsequent PCB design iteration.
 
-Fault frames use CAN identifiers from `0x000` to `0x005`, assigned according to the board ID.
+It retains the distributed temperature acquisition architecture and incorporates updates made after the initial proof of concept.
 
-| Byte | Description |
+The design integrates:
+- STM32F407VET6 microcontroller.
+- NTC sensing interfaces.
+- Power regulation circuitry.
+- CAN communication interface.
+- Programming and debugging access.
+
+### 4.3 Four-Layer PCB Stack-Up
+
+The PCB uses a four-layer stack-up to organize signal routing, grounding, and power distribution.
+
+| Layer | Function |
 |---|---|
-| Byte 0 | Faulted NTC channel |
-| Byte 1 | Fault type |
-| Byte 2–7 | Reserved |
+| L1 – Top | Component placement and signal routing |
+| L2 – Inner 1 | Ground plane |
+| L3 – Inner 2 | Power distribution |
+| L4 – Bottom | Signal routing |
 
-Fault type encoding:
+The dedicated ground and power layers provide reference planes and help organize routing for the mixed-signal design.
 
-| Value | Fault |
+### 4.4 PCB Design Considerations
+
+- Separation of analog temperature-sensing signals and digital circuitry.
+- Ground-plane continuity and return-current paths.
+- Power distribution for the MCU and CAN transceiver.
+- SWD programming and debugging access.
+- CAN bus routing and termination provisions.
+- Test points for hardware bring-up and debugging.
+
+---
+
+## 5. Firmware Architecture
+
+The firmware is developed using the STM32 Hardware Abstraction Layer (HAL).
+
+The main firmware functions include:
+
+1. ADC initialization and configuration.
+2. DMA-based acquisition of 13 NTC channels.
+3. ADC data buffering.
+4. Conversion of ADC readings into thermistor resistance.
+5. Temperature calculation using the Beta equation.
+6. Overtemperature and sensor fault detection.
+7. CAN telemetry generation and transmission.
+
+### 5.1 ADC Acquisition
+
+The STM32 ADC is configured for 13-channel scanning with DMA.
+
+DMA transfers acquired ADC samples into a memory buffer, reducing the need for continuous CPU polling.
+
+The firmware uses separate buffers to maintain and process acquired temperature data.
+
+### 5.2 Fault Detection
+
+The firmware includes checks for:
+
+- Overtemperature conditions.
+- NTC short-circuit conditions.
+- NTC open-circuit conditions.
+
+Overtemperature detection uses separate trip and clear thresholds, along with debounce logic, to avoid unnecessary fault triggering due to small measurement fluctuations.
+
+The firmware defines fault codes for reporting the detected condition.
+
+### 5.3 Temperature Telemetry
+
+The firmware packs temperature readings into CAN frames.
+
+Each temperature value is represented as a signed 16-bit fixed-point value, with a scaling factor of 100.
+
+For example:
+
+```text
+Temperature:       25.50 °C
+Transmitted value: 2550
+```
+
+The 13 channels are organized into four CAN frames:
+
+| Frame | Temperature Channels | Payload |
+|---|---|---|
+| Frame 0 | CH0–CH3 | 8 bytes |
+| Frame 1 | CH4–CH7 | 8 bytes |
+| Frame 2 | CH8–CH11 | 8 bytes |
+| Frame 3 | CH12 | 2 bytes |
+
+The CAN identifier is generated using the board ID and frame index:
+
+\[
+CAN\ ID = 0x100 + (BOARD\_ID \times 0x10) + Frame
+\]
+
+This allows multiple temperature boards to share the same CAN network while maintaining separate message identifiers.
+
+The firmware schedules telemetry transmission at 100 ms intervals.
+
+### 5.4 CAN Fault Reporting
+
+The firmware also defines fault-reporting messages.
+
+Fault information includes:
+- Board identification through the CAN arbitration ID.
+- Thermistor channel identification.
+- Fault type.
+
+| Fault Code | Description |
 |---|---|
 | 0 | No fault |
 | 1 | Overtemperature |
 | 2 | Sensor short |
 | 3 | Sensor open |
 
-## Multi-Board Configuration
+---
 
-Each monitoring board must have a unique `BOARD_ID`.
+## 6. Repository Structure
 
-```c
-#define NTC_CHANNELS  13
-#define BOARD_ID      0
+```text
+Temperature-Monitoring-System/
+│
+├── PCB/
+│   ├── V1/
+│   │   └── PCB design files
+│   │
+│   └── V2/
+│       └── PCB design files
+│
+├── Firmware/
+│   ├── Core/
+│   │   ├── Inc/
+│   │   └── Src/
+│   │
+│   └── STM32 project files
+│
+├── Documentation/
+│   ├── Design_Report.pdf
+│   └── Hardware documentation
+│
+└── README.md
 ```
 
-Supported board IDs: `0–5`.
+*The directory structure is illustrative and should be adjusted to match the actual repository contents.*
 
-Each board independently transmits its temperature telemetry and fault information using its assigned CAN identifiers.
+---
 
-## Firmware Architecture
+## 7. Design Objectives
 
-| Function | Responsibility |
-|---|---|
-| `MX_ADC1_Init()` | Configures 13-channel ADC scan conversion |
-| `MX_DMA_Init()` | Initializes DMA acquisition |
-| `HAL_ADC_ConvCpltCallback()` | Processes ADC samples and detects faults |
-| `ADC_ToTemperature()` | Converts ADC readings into temperature |
-| `Temp_ToFixedPoint()` | Converts temperature into fixed-point representation |
-| `Send_Telemetry_Frames()` | Packs and transmits temperature readings |
-| `CAN_SendFault()` | Transmits channel-specific fault information |
-| `Fault_Reset()` | Clears the latched fault state for a channel |
+- Distributed acquisition of battery temperature measurements.
+- Monitoring of 75 NTC temperature-sensing points.
+- Modular hardware architecture.
+- Local digitization of analog temperature signals.
+- CAN-based communication with the central BMS.
+- Scalable temperature monitoring across multiple battery locations.
+- Detection of sensor faults and overtemperature conditions.
+- Dedicated PCB design for temperature acquisition and communication.
 
-## Future Extensions
+## 8. Future Development
 
-- Integration with the central BMS controller.
-- CAN-based fault acknowledgement and reset.
-- CAN bus error and bus-off recovery.
-- Watchdog integration.
-- Improved transmission retry handling.
-- Temperature-based battery protection and thermal management.
+- Integration of all five temperature boards with the BMS master.
+- Integration and documentation of the 10 additional temperature-sensing channels.
+- Validation of temperature readings against calibrated reference measurements.
+- CAN communication testing under multi-node operation.
+- Hardware validation of sensor open-circuit and short-circuit detection.
+- Integration of temperature fault information into BMS shutdown logic.
+- Evaluation of communication reliability and timing under full system load.
 
-## License
+## 9. Project Status
 
-This project is intended for battery management system development and experimental embedded firmware applications.
+The project includes the temperature-monitoring hardware design, two PCB revisions, and STM32 firmware development.
+
+The firmware implements ADC acquisition, NTC temperature conversion, fault detection logic, and CAN telemetry generation.
+
+Full multi-board integration, additional sensor integration, and system-level validation remain development objectives.
+
+---
+
+## Technologies Used
+
+- **Microcontroller:** STM32F407VET6
+- **Embedded Development:** Embedded C, STM32 HAL
+- **Temperature Sensing:** 10 kΩ NTC thermistors
+- **Analog Acquisition:** 12-bit ADC, DMA
+- **Communication:** CAN, TJA1051
+- **Power Regulation:** TLV75733
+- **PCB Design:** Four-layer PCB
+- **BMS Platform:** APARD32690, ADBMS6830
+
